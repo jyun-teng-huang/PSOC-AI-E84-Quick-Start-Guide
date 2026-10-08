@@ -1,6 +1,10 @@
 # Wi-Fi 與藍牙
 
-## 基本介紹
+上課教材
+
+- [Infineon PSoC™ Edge E84 AI Kit-23 教學Bluetooth → PSOC Edge Bluetooth LE FindMe](https://hackmd.io/6VBfRty_ShK-730xXv_x8A?view)
+
+## 硬體基本介紹
 
 搭載Wi-Fi 6 & BLE 5.4
 
@@ -15,11 +19,9 @@ PHY data rate
 - BLE 3 Mbps
 - BLE LE 2 Mbps
 
-[上課講義連結](https://hackmd.io/6VBfRty_ShK-730xXv_x8A?view)
-
 ## Sample Code
 
-本教學使用 PSoC™ Edge E84 AI Kit 的官方範例：
+本教學使用 PSoC™ Edge E84 AI Kit 的官方範例，直接在Eclipse加入新專案即可。
 
 ```
 Bluetooth → PSOC Edge Bluetooth LE FindMe

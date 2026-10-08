@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;PSOC_Edge_Empty_Application&apos; to &apos;PSOC_Edge_IRT&apos;" description="Rename resource &apos;PSOC_Edge_Empty_Application&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/PSOC_Edge_Empty_Application" name="PSOC_Edge_IRT" stamp="1791445081802" updateReferences="true"/>&#x0A;<refactoring comment="Delete resource &apos;PSOC_Edge_IRT&apos;" deleteContents="true" description="Delete resource &apos;PSOC_Edge_IRT&apos;" element1="/PSOC_Edge_IRT" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1791447677687"/>
-</session>
