@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item key="hasShownOverlayPopupBefore" value="true"/>
+	<section name="java.lang.Class">
+		<item key="replaceBarOpen" value="false"/>
+		<list key="findhistory">
+			<item value="Cy_SysEnableCM55"/>
+			<item value="result"/>
+			<item value="button_flag"/>
+			<item value="Cy_GPIO_SetInterruptMask"/>
+			<item value="CY_GPIO_INTR_MASKED_MASK"/>
+			<item value="Cy_GPIO_SetInterruptEdge"/>
+			<item value="CYBSP_USER_BTN_IRQ"/>
+			<item value="button_count"/>
+			<item value="Cy_GPIO_Inv"/>
+			<item value="CYBSP_USER_BTN_PORT"/>
+			<item value="SW1"/>
+			<item value="SW2"/>
+			<item value="handle_app_error"/>
+			<item value="CM55_BOOT_WAIT_TIME_USEC    "/>
+			<item value="BLINKY_LED_DELAY_MSEC       "/>
+		</list>
+	</section>
+</section>

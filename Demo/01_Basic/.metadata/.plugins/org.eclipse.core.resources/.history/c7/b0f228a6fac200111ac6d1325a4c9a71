@@ -1,0 +1,105 @@
+#include "cybsp.h"
+#include "retarget_io_init.h"
+
+/* 按鈕中斷旗標 */
+volatile bool button_flag = false;
+
+/* 按鈕按下次數 */
+uint32_t button_count = 0;
+
+/* 按鈕 GPIO 中斷處理函式 */
+void button_isr(void)
+{
+    /* 確認是否為使用者按鈕觸發中斷 */
+    if (Cy_GPIO_GetInterruptStatusMasked(CYBSP_USER_BTN_PORT,
+                                         CYBSP_USER_BTN_PIN) != 0)
+    {
+        /* 清除 GPIO 中斷旗標 */
+        Cy_GPIO_ClearInterrupt(CYBSP_USER_BTN_PORT,
+                               CYBSP_USER_BTN_PIN);
+
+        /* 通知主迴圈處理按鈕事件 */
+        button_flag = true;
+    }
+}
+
+int main(void)
+{
+    cy_rslt_t result;
+
+    /* GPIO 中斷設定 */
+    const cy_stc_sysint_t button_irq_cfg =
+    {
+        .intrSrc = CYBSP_USER_BTN_IRQ,
+        .intrPriority = 3
+    };
+
+    /* 初始化開發板 */
+    result = cybsp_init();
+
+    if (result != CY_RSLT_SUCCESS)
+    {
+        handle_app_error();
+    }
+
+    /* 初始化 UART printf */
+    init_retarget_io();
+
+    printf("\x1b[2J\x1b[;H");
+    printf("PSoC Edge E84 GPIO Interrupt Demo\r\n");
+    printf("Press button to toggle LED.\r\n\n");
+
+    /*
+     * 設定按鈕中斷觸發方式
+     *
+     * 多數開發板按鈕為 Active Low：
+     * 放開 = 1
+     * 按下 = 0
+     *
+     * 因此按下時會產生下降緣，所以使用 CY_GPIO_INTR_FALLING。
+     */
+    Cy_GPIO_SetInterruptEdge(CYBSP_USER_BTN_PORT,
+                             CYBSP_USER_BTN_PIN,
+                             CY_GPIO_INTR_FALLING);
+
+    /* 啟用該 GPIO 腳位的中斷遮罩 */
+    Cy_GPIO_SetInterruptMask(CYBSP_USER_BTN_PORT,
+                             CYBSP_USER_BTN_PIN,
+                             1UL);
+
+    /* 註冊 GPIO 中斷處理函式 */
+    Cy_SysInt_Init(&button_irq_cfg, button_isr);
+
+    /* 啟用 NVIC 中斷 */
+    NVIC_EnableIRQ(button_irq_cfg.intrSrc);
+
+    /* 啟用全域中斷 */
+    __enable_irq();
+
+    for (;;)
+    {
+        if (button_flag)
+        {
+            /* 清除旗標 */
+            button_flag = false;
+
+            /* 簡單去彈跳 */
+            Cy_SysLib_Delay(50);
+
+            /* 確認按鈕仍然是按下狀態 */
+            if (Cy_GPIO_Read(CYBSP_USER_BTN_PORT,
+                             CYBSP_USER_BTN_PIN) == 0)
+            {
+                /* LED 反轉 */
+                Cy_GPIO_Inv(CYBSP_USER_LED1_PORT,
+                            CYBSP_USER_LED1_PIN);
+
+                /* 按鈕次數加 1 */
+                button_count++;
+
+                /* 印出按鈕次數 */
+                printf("Button pressed count = %lu\r\n", button_count);
+            }
+        }
+    }
+}

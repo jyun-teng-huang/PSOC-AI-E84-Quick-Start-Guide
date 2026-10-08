@@ -1,0 +1,100 @@
+/*******************************************************************************
+* File Name        : main.c
+*
+* Description      : This source file contains the main routine for non-secure
+*                    application in the CM33 CPU
+*
+* Related Document : See README.md
+*/
+
+/*******************************************************************************
+* Header Files
+*******************************************************************************/
+
+#include "cybsp.h"
+#include "retarget_io_init.h"
+
+/*******************************************************************************
+* Macros
+*******************************************************************************/
+#define BLINKY_LED_DELAY_MSEC       (100U)
+
+/* The timeout value in microseconds used to wait for CM55 core to be booted */
+#define CM55_BOOT_WAIT_TIME_USEC    (10U)
+
+/* App boot address for CM55 project */
+#define CM55_APP_BOOT_ADDR          (CYMEM_CM33_0_m55_nvm_START + \
+                                        CYBSP_MCUBOOT_HEADER_SIZE)
+
+/*******************************************************************************
+* Function Name: main
+********************************************************************************
+* Summary:
+* This is the main function of the CM33 non-secure application. 
+* 
+* It initializes the device and board peripherals. It also initializes the 
+* retarget-io middleware to be used with the debug UART port using which 
+* "Hello World!" is printed on the debug UART. The LED pin is initialized with
+* default configurations. The CM55 core is enabled and then the programs enters
+* an infinite while loop which toggles the LED1 with a frequency of 1 Hz.
+*
+* Parameters:
+*  none
+*
+* Return:
+*  int
+*
+*******************************************************************************/
+
+
+int main(void)
+{
+    cy_rslt_t result;   /* 儲存函式執行結果 */
+
+    /* 初始化開發板硬體資源 */
+    result = cybsp_init();
+
+    /* 若初始化失敗，進入錯誤處理 */
+    if (result != CY_RSLT_SUCCESS)
+    {
+        handle_app_error();
+    }
+
+    /* 啟用全域中斷 */
+    __enable_irq();
+
+    /* 初始化 UART，讓 printf 可以輸出到終端機 */
+    init_retarget_io();
+
+    /* 印出啟動訊息 */
+    printf("Button Test Start\r\n");
+
+    /* 主迴圈 */
+    for (;;)
+    {
+        /* 讀取按鈕狀態 */
+        uint32_t button_state = Cy_GPIO_Read(CYBSP_USER_BTN_PORT, CYBSP_USER_BTN_PIN);
+
+        /*
+         * 多數 PSoC 開發板的按鈕是 Active Low
+         * 也就是：
+         * 0 = 按下
+         * 1 = 放開
+         */
+        if (button_state == 0)
+        {
+            /* 按鈕被按下，暗 LED */
+            Cy_GPIO_Write(CYBSP_USER_LED1_PORT, CYBSP_USER_LED1_PIN, 0);
+
+            printf("Button Pressed\r\n");
+        }
+        else
+        {
+            /* 按鈕放開，亮 LED */
+            Cy_GPIO_Write(CYBSP_USER_LED1_PORT, CYBSP_USER_LED1_PIN, 1);
+        }
+
+        /* 簡單延遲，避免 printf 太頻繁 */
+        Cy_SysLib_Delay(BLINKY_LED_DELAY_MSEC);
+    }
+}
