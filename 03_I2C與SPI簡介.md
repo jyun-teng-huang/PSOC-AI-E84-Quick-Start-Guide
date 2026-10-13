@@ -654,7 +654,7 @@ int main(void)
 
 打開MobaXterm可以看UART port看結果。每一秒會打一個byte到radar sensor，並且console會跳出以下畫面。
 
-[](./pict/03_spi.png)
+![](./pict/03_spi.png)
 
 ## QSPI
 
@@ -966,4 +966,5 @@ int main(void)
 ### 結果
 
 打開MobaXterm可以看UART port看結果。會先寫入再讀取flash的值，寫入前需要先erase，並且console會跳出以下畫面。
-[](./pict/03_qspi.png)
+
+![](./pict/03_qspi.png)
