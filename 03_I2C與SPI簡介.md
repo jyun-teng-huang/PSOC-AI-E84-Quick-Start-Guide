@@ -907,7 +907,7 @@ int main(void)
 {
     cy_rslt_t result;
     cy_en_smif_status_t status;
-	uint32_t offset = 0x00000000;
+	uint32_t offset = 0x00880000;
 
     /* 初始化 E84 板子、clock、pin、system */
     result = cybsp_init();
