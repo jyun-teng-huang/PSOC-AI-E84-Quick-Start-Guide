@@ -660,6 +660,7 @@ int main(void)
 
 - [QSPI規格](#qspi規格)
 - [範例程式](#範例程式-2)
+- [結果](#結果-2)
 
 ### QSPI規格
 
@@ -965,5 +966,4 @@ int main(void)
 ### 結果
 
 打開MobaXterm可以看UART port看結果。會先寫入再讀取flash的值，寫入前需要先erase，並且console會跳出以下畫面。
-
 [](./pict/03_qspi.png)
