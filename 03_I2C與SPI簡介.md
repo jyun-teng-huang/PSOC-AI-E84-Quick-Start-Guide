@@ -812,23 +812,101 @@ CYBSP_SMIF_CORE_0_XSPI_FLASH_hal_config
 #include <stdio.h>
 #include <stdint.h>
 
-/* 從 Flash offset 0x00000000 開始讀 */
-#define READ_OFFSET     (0x00000000UL)
-
 /* 讀取 64 bytes */
-#define READ_SIZE       (64UL)
+#define SIZE       (64UL)
 
 /* SMIF context */
 static cy_stc_smif_context_t smif_context;
 
 /* 接收資料緩衝區 */
-static uint8_t rx_data[READ_SIZE];
+static uint8_t rx_data[SIZE];
+
+void Write_Mem_Print(uint32_t offset, uint8_t data)
+{
+	cy_en_smif_status_t status;
+	uint32_t i;
+	uint8_t txBuffer[SIZE];
+
+    for (i = 0UL; i < SIZE; i=i+1)
+    {
+    	txBuffer[i] = data;
+    }
+
+	printf("buf write ok.");
+
+	status = Cy_SMIF_MemEraseSector(
+	    CYBSP_SMIF_CORE_0_XSPI_FLASH_HW,
+	    &S25HS512T_SMIF0_SlaveSlot_1,
+	    offset,                 /* 要對齊 sector 邊界 */
+	    SIZE,             /* 一個 sector 的大小 */
+	    &smif_context);
+
+	status = Cy_SMIF_MemWrite(
+        CYBSP_SMIF_CORE_0_XSPI_FLASH_HW,
+        &S25HS512T_SMIF0_SlaveSlot_1,
+        offset,
+        txBuffer,
+        SIZE,
+        &smif_context);
+
+	if (status != CY_SMIF_SUCCESS)
+    {
+        printf("QSPI write failed: %d\r\n", (int)status);
+        CY_ASSERT(0);
+    }
+    printf("QSPI write OK\r\n");
+
+}
+
+void Read_Mem_Print(uint32_t offset)
+{
+	cy_en_smif_status_t status;
+	uint32_t i;
+	/*
+     * 透過 SMIF / QSPI 從外部 Flash 讀取 64 bytes。
+     *
+     * READ_OFFSET 是 Flash 內部 offset，
+     * 不是 0x60000000。
+     */
+    status = Cy_SMIF_MemRead(
+        CYBSP_SMIF_CORE_0_XSPI_FLASH_HW,
+        &S25HS512T_SMIF0_SlaveSlot_1,
+        offset,
+        rx_data,
+        SIZE,
+        &smif_context);
+
+    if (status != CY_SMIF_SUCCESS)
+    {
+        printf("QSPI read failed: %d\r\n", (int)status);
+        CY_ASSERT(0);
+    }
+
+    printf("QSPI read OK\r\n");
+
+    /*
+     * 印出讀回資料。
+     */
+    for (i = 0UL; i < SIZE; i++)
+    {
+        if ((i % 16UL) == 0UL)
+        {
+            printf(
+                "\r\n0x%08lX : ",
+                (unsigned long)(offset + i));
+        }
+
+        printf("%02X ", rx_data[i]);
+    }
+
+    printf("\r\n\n");
+}
 
 int main(void)
 {
     cy_rslt_t result;
     cy_en_smif_status_t status;
-    uint32_t i;
+	uint32_t offset = 0x00000000;
 
     /* 初始化 E84 板子、clock、pin、system */
     result = cybsp_init();
@@ -843,9 +921,8 @@ int main(void)
 
     /* 初始化 printf UART */
     init_retarget_io();
-
+	printf("\x1b[2J\x1b[;H");
     printf("\r\n");
-    printf("\x1b[2J\x1b[;H");
     printf("E84 QSPI Simple Read Test\r\n");
     printf("-------------------------\r\n");
 
@@ -869,44 +946,14 @@ int main(void)
 
     printf("QSPI memory slot init OK\r\n");
 
-    /*
-     * 透過 SMIF / QSPI 從外部 Flash 讀取 64 bytes。
-     *
-     * READ_OFFSET 是 Flash 內部 offset，
-     * 不是 0x60000000。
-     */
-    status = Cy_SMIF_MemRead(
-        CYBSP_SMIF_CORE_0_XSPI_FLASH_HW,
-        &S25HS512T_SMIF0_SlaveSlot_1,
-        READ_OFFSET,
-        rx_data,
-        READ_SIZE,
-        &smif_context);
+	printf("Mem Init state\r\n");
+	Read_Mem_Print(offset);
+	for (uint8_t i=0; i<3; i++){
+		printf("Iteration %d\r\n", (uint8_t)i);
+		Write_Mem_Print(offset, i);
+		Read_Mem_Print(offset);
+	}
 
-    if (status != CY_SMIF_SUCCESS)
-    {
-        printf("QSPI read failed: %d\r\n", (int)status);
-        CY_ASSERT(0);
-    }
-
-    printf("QSPI read OK\r\n");
-
-    /*
-     * 印出讀回資料。
-     */
-    for (i = 0UL; i < READ_SIZE; i++)
-    {
-        if ((i % 16UL) == 0UL)
-        {
-            printf(
-                "\r\n0x%08lX : ",
-                (unsigned long)(READ_OFFSET + i));
-        }
-
-        printf("%02X ", rx_data[i]);
-    }
-
-    printf("\r\n");
 
     for (;;)
     {
@@ -917,6 +964,6 @@ int main(void)
 
 ### 結果
 
-打開MobaXterm可以看UART port看結果。會讀取flash的值，並且console會跳出以下畫面。
+打開MobaXterm可以看UART port看結果。會先寫入再讀取flash的值，寫入前需要先erase，並且console會跳出以下畫面。
 
 [](./pict/03_qspi.png)
