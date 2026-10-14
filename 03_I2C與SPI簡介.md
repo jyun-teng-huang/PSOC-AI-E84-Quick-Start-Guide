@@ -824,25 +824,25 @@ static uint8_t rx_data[SIZE];
 
 void Write_Mem_Print(uint32_t offset, uint8_t data)
 {
-	cy_en_smif_status_t status;
-	uint32_t i;
-	uint8_t txBuffer[SIZE];
+    cy_en_smif_status_t status;
+    uint32_t i;
+    uint8_t txBuffer[SIZE];
 
     for (i = 0UL; i < SIZE; i=i+1)
     {
-    	txBuffer[i] = data;
+        txBuffer[i] = data;
     }
 
-	printf("buf write ok.");
+    printf("buf write ok.");
 
-	status = Cy_SMIF_MemEraseSector(
-	    CYBSP_SMIF_CORE_0_XSPI_FLASH_HW,
-	    &S25HS512T_SMIF0_SlaveSlot_1,
-	    offset,                 /* 要對齊 sector 邊界 */
-	    SIZE,             /* 一個 sector 的大小 */
-	    &smif_context);
+    status = Cy_SMIF_MemEraseSector(
+        CYBSP_SMIF_CORE_0_XSPI_FLASH_HW,
+        &S25HS512T_SMIF0_SlaveSlot_1,
+        offset,                 /* 要對齊 sector 邊界 */
+        SIZE,             /* 一個 sector 的大小 */
+        &smif_context);
 
-	status = Cy_SMIF_MemWrite(
+    status = Cy_SMIF_MemWrite(
         CYBSP_SMIF_CORE_0_XSPI_FLASH_HW,
         &S25HS512T_SMIF0_SlaveSlot_1,
         offset,
@@ -850,7 +850,7 @@ void Write_Mem_Print(uint32_t offset, uint8_t data)
         SIZE,
         &smif_context);
 
-	if (status != CY_SMIF_SUCCESS)
+    if (status != CY_SMIF_SUCCESS)
     {
         printf("QSPI write failed: %d\r\n", (int)status);
         CY_ASSERT(0);
@@ -861,14 +861,9 @@ void Write_Mem_Print(uint32_t offset, uint8_t data)
 
 void Read_Mem_Print(uint32_t offset)
 {
-	cy_en_smif_status_t status;
-	uint32_t i;
-	/*
-     * 透過 SMIF / QSPI 從外部 Flash 讀取 64 bytes。
-     *
-     * READ_OFFSET 是 Flash 內部 offset，
-     * 不是 0x60000000。
-     */
+    /* 透過 SMIF / QSPI 從外部 Flash 讀取 64 bytes。 */
+    cy_en_smif_status_t status;
+    uint32_t i;
     status = Cy_SMIF_MemRead(
         CYBSP_SMIF_CORE_0_XSPI_FLASH_HW,
         &S25HS512T_SMIF0_SlaveSlot_1,
